@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from  flask_sqlalchemy import SQLAlchemy 
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField,IntegerField, SelectMultipleField, FieldList,FormField
+from wtforms import StringField, TextAreaField,IntegerField,SelectField, SelectMultipleField, FieldList,FormField
 from wtforms.validators import Length
 from wtforms.validators import DataRequired
 from flask_admin.form import ImageUploadField
@@ -13,7 +13,7 @@ from Utilities import Utils
 import datetime 
 import os
 import hidden
-
+from wtforms_sqlalchemy.fields import QuerySelectField
 
 import markdown
 
@@ -69,29 +69,47 @@ class Article(db.Model):
 
 class Paragraph(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order = db.Column(db.Integer, nullable=False, unique=True)
     text = db.Column(db.Text, nullable=False)
     image = db.relationship('Image', backref='paragraph', uselist=False)
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'))
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'),name='fk_paragraph_to_articles')
 
 class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_image = db.Column(db.String(255), nullable=True)
-    paragraph_id = db.Column(db.Integer, db.ForeignKey('paragraph.id', ondelete='CASCADE'))
+    content_image = db.Column(db.String(255), nullable=False)
+    paragraph_id = db.Column(db.Integer, db.ForeignKey('paragraph.id', ondelete='CASCADE'),name = 'fk_image_paragraph')
+    
+    
+def get_article_titles():
+    """Function to fetch all article titles from the database."""
+    articles = Article.query.all()  # Retrieve all articles from the database
+    return [(article.id, article.title) for article in articles]   # Return a list of tuples containing (ID, ID)
+
+    
     
 class ParagraphForm(FlaskForm):
-    order = StringField('Order', validators=[DataRequired()])
+    article_id = QuerySelectField('Article', query_factory=lambda: Article.query.all(), allow_blank=False, get_label='id')
     text = TextAreaField('Text', validators=[DataRequired(), Length(min=10)])
 
+    def populate_obj(self, obj):
+        super().populate_obj(obj)
+        selected_article = self.article_id.data
+        if selected_article:
+            obj.article_id = selected_article.id
+
+
+
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'webp'}
+
 class ImageForm(FlaskForm):
-    caption = StringField('Caption')
+    paragraph = QuerySelectField('Paragraph', query_factory=lambda: Paragraph.query.all(), allow_blank=False, get_label='id')
+
     image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', thumbnail_size=(100,50, True),
         validators=[
             DataRequired(), 
-            FileAllowed(ALLOWED_IMAGE_EXTENSIONS, 'Images only!'),]
+            FileAllowed(ALLOWED_IMAGE_EXTENSIONS, 'Images only!')]
         )
     # Add more fields as needed
+
 
 class ArticleForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
@@ -99,31 +117,33 @@ class ArticleForm(FlaskForm):
     main_image = ImageUploadField('Image', base_path='static/ArticleImage', thumbnail_size=(200, 100, True), validators=[DataRequired()])
    
     
-    # def __init__(self, *args, **kwargs):
-    #     super(ArticleForm, self).__init__(*args, **kwargs)
-    #     self.paragraphs.choices = [(paragraph.id, paragraph.text) for paragraph in Paragraph.query.all()]
 
-
-
-# class ImageForm(FlaskForm):
-#     content_image = ImageUploadField('Content image', base_path='static/ArticleImage/ContentImage', thumbnail_size=(200,100, True))
-    
     
 
 class ParagraphView(ModelView):
-    form_columns = ['article_id' ,'order','text', 'image']
-    column_auto_select_related=True
+    form = ParagraphForm
+    column_list = ['id','article_id','text']
+    form_widget_args = {
+        'id': {
+            'rows': 5
+        },
+        'article_id': {
+            'rows': 10
+        },
+        'mainimage' : {
+            'rows' : 20
+        }
+    }
     
 
 class ImageView(ModelView):
     form = ImageForm
-    form_columns = ['content_image']
+    form_columns = ['paragraph','image']
 
 
     
 class ArticleView(ModelView):
     
-
     form = ArticleForm
     
     column_list = ['id','title', 'epigraph', 'main_image']
@@ -151,27 +171,10 @@ class ArticleView(ModelView):
             'rows' : 10
         }
     }
-#     inline_models = [
-#         (Paragraph, {
-#             'form_label' : 'Paragraph',
-#             'form_columns' : {
-#                 'order' : IntegerField('Paragraph position'),
-#                 'text' : TextAreaField('Content')
-#             }
-#         }),
-#         (Image, {
-#             'form_label' : 'Images',
-#             'form_columns' : {
-#                 'content_image' : ImageUploadField('Paragraph respective image')
-#             }
-# #         })
-    # ]
-    
-    
 
 
     
-migrate = Migrate(app,db)
+migrate = Migrate(app,db,render_as_batch=True)
 
 # # set optional bootswatch theme
 app.config['FLASK_ADMIN_SWATCH'] ='lumen'
@@ -195,13 +198,15 @@ def homepage():
 @app.route('/articles')
 def home():
     articles = Article.query.all()
-   
     return render_template('articles.html', articles= articles)
 
 @app.route('/article/<article_id>')
 def article(article_id):
     article = Article.query.get(article_id)
     images = Image.query.join(Paragraph).filter(Paragraph.article_id == article_id).all()
+    # print(images[0])
+    # print(images.content_image)
+    print('xxxxXxxxxxxxxxxxXXXXXXXXXXXXX')
     return render_template('article.html', article=article, images=images)
 
 
