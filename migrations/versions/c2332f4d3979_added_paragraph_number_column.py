@@ -1,8 +1,8 @@
-"""First migration
+"""Added paragraph number column
 
-Revision ID: 3fae54be3966
+Revision ID: c2332f4d3979
 Revises: 
-Create Date: 2024-02-19 17:39:50.242081
+Create Date: 2024-02-21 09:26:59.944668
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3fae54be3966'
+revision = 'c2332f4d3979'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -33,17 +33,17 @@ def upgrade():
     )
     op.create_table('paragraph',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('order', sa.Integer(), nullable=False),
     sa.Column('text', sa.Text(), nullable=False),
+    sa.Column('para_number', sa.Integer(), nullable=False),
     sa.Column('fk_paragraph_to_articles', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['fk_paragraph_to_articles'], ['article.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('order')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('image',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('content_image', sa.String(length=255), nullable=False),
+    sa.Column('fk_content_image_to_articles', sa.String(length=255), nullable=True),
     sa.Column('fk_image_paragraph', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['fk_content_image_to_articles'], ['article.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['fk_image_paragraph'], ['paragraph.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
