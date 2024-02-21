@@ -66,49 +66,72 @@ class Article(db.Model):
     main_image = db.Column(db.String(255), nullable=True)
     epigraph = db.Column(db.Text, nullable=True)
     paragraphs = db.relationship('Paragraph', backref='article', cascade='all, delete-orphan')
+    content_image = db.relationship('Image', backref = 'article', cascade = 'all, delete-orphan')
+    
 
 class Paragraph(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     image = db.relationship('Image', backref='paragraph', uselist=False)
+    para_number = db.Column(db.Integer, nullable=False) 
     article_id = db.Column(db.Integer, db.ForeignKey('article.id', ondelete='CASCADE'),name='fk_paragraph_to_articles')
 
 class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_image = db.Column(db.String(255), nullable=False)
+    content_image = db.Column(db.String(255),db.ForeignKey('article.id', ondelete='CASCADE') ,name = 'fk_content_image_to_articles')
     paragraph_id = db.Column(db.Integer, db.ForeignKey('paragraph.id', ondelete='CASCADE'),name = 'fk_image_paragraph')
-    
-    
-def get_article_titles():
-    """Function to fetch all article titles from the database."""
-    articles = Article.query.all()  # Retrieve all articles from the database
-    return [(article.id, article.title) for article in articles]   # Return a list of tuples containing (ID, ID)
 
     
     
 class ParagraphForm(FlaskForm):
     article_id = QuerySelectField('Article', query_factory=lambda: Article.query.all(), allow_blank=False, get_label='id')
     text = TextAreaField('Text', validators=[DataRequired(), Length(min=10)])
-
+    
     def populate_obj(self, obj):
         super().populate_obj(obj)
         selected_article = self.article_id.data
         if selected_article:
             obj.article_id = selected_article.id
+            
+            # Query the Paragraph table to find the maximum paragraph number for the given article_id
+            max_paragraph_number = Paragraph.query.filter_by(article_id=selected_article.id).order_by(Paragraph.para_number.desc()).first()
 
+            if max_paragraph_number:
+                # If there are paragraphs for the given article, increment the maximum paragraph number by 1
+                next_paragraph_number = max_paragraph_number.para_number + 1
+            else:
+                # If there are no paragraphs for the given article, set the paragraph number to 1
+                next_paragraph_number = 1
 
-
+            obj.para_number = next_paragraph_number
+            
+            
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'webp'}
 
-class ImageForm(FlaskForm):
-    paragraph = QuerySelectField('Paragraph', query_factory=lambda: Paragraph.query.all(), allow_blank=False, get_label='id')
 
-    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', thumbnail_size=(100,50, True),
-        validators=[
-            DataRequired(), 
-            FileAllowed(ALLOWED_IMAGE_EXTENSIONS, 'Images only!')]
-        )
-    # Add more fields as needed
+
+class ImageForm(FlaskForm):
+    article_id = QuerySelectField('Article', query_factory=lambda: Article.query.all(), allow_blank=False, get_label='id')
+    paragraph = QuerySelectField('Paragraph', allow_blank=False, get_label='para_number')
+    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', thumbnail_size=(100, 50, True),
+                             validators=[
+                                 DataRequired(),
+                                 FileAllowed(ALLOWED_IMAGE_EXTENSIONS, 'Images only!')
+                             ])
+
+    def __init__(self, *args, **kwargs):
+        super(ImageForm, self).__init__(*args, **kwargs)
+        self.paragraph.query_factory = self.get_paragraph_choices
+
+    def get_paragraph_choices(self):
+        selected_article_id = self.article_id.data.id if self.article_id.data else None
+        if selected_article_id:
+            return Paragraph.query.filter_by(article_id=selected_article_id).all()
+        else:
+            return []
+
+        
+        
 
 
 class ArticleForm(FlaskForm):
@@ -122,7 +145,7 @@ class ArticleForm(FlaskForm):
 
 class ParagraphView(ModelView):
     form = ParagraphForm
-    column_list = ['id','article_id','text']
+    column_list = ['id','para_number','article_id','text']
     form_widget_args = {
         'id': {
             'rows': 5
