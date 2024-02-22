@@ -11,17 +11,18 @@ from flask_admin.form import ImageUploadField
 from flask_wtf.file import FileAllowed
 from Utilities import Utils
 import datetime 
-import os
+from flask_bootstrap import Bootstrap
 import hidden
 from wtforms_sqlalchemy.fields import QuerySelectField
-
 import markdown
+from flask_babel import Babel
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SECRET_KEY'] = hidden.password
 db = SQLAlchemy(app)
-
+babel = Babel(app)
+bootstrap = Bootstrap(app)
 
 # Classes for Static fixed files images
 class BannerImages(db.Model):
@@ -110,36 +111,32 @@ ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'webp'}
 
 
 
-class ImageForm(FlaskForm):
-    article_id = QuerySelectField('Article', query_factory=lambda: Article.query.all(), allow_blank=False, get_label='id')
-    paragraph = QuerySelectField('Paragraph', allow_blank=False, get_label='para_number')
-    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', thumbnail_size=(100, 50, True),
-                             validators=[
-                                 DataRequired(),
-                                 FileAllowed(ALLOWED_IMAGE_EXTENSIONS, 'Images only!')
-                             ])
-
-    def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
-        self.paragraph.query_factory = self.get_paragraph_choices
-
-    def get_paragraph_choices(self):
-        selected_article_id = self.article_id.data.id if self.article_id.data else None
-        if selected_article_id:
-            return Paragraph.query.filter_by(article_id=selected_article_id).all()
-        else:
-            return []
-
-        
-        
-
 
 class ArticleForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     epigraph = TextAreaField('Epigraph',validators=[Length(min=10,max=200)])
     main_image = ImageUploadField('Image', base_path='static/ArticleImage', thumbnail_size=(200, 100, True), validators=[DataRequired()])
    
-    
+# Image wtf form
+class Imageform(FlaskForm):
+    paragraph_id = QuerySelectField(
+        'Paragraph',
+        query_factory=lambda: Paragraph.query.all(),
+        get_label='id',
+        validators=[DataRequired()]
+    )   
+
+    image = ImageUploadField('Image',base_path='static/ArticleImage/ContentImage',validators=[DataRequired()])
+
+    def populate_obj(self, obj):
+        super().populate_obj(obj)
+        selected_paragraph = self.paragraph_id.data
+        if selected_paragraph:
+            obj.paragraph_id = selected_paragraph.id
+
+class ImageView(ModelView):
+    form = Imageform
+    column_list = ['paragraph_id','content_image']
 
     
 
@@ -157,31 +154,17 @@ class ParagraphView(ModelView):
             'rows' : 20
         }
     }
-    
-
-class ImageView(ModelView):
-    form = ImageForm
-    form_columns = ['paragraph','image']
-
 
     
 class ArticleView(ModelView):
     
     form = ArticleForm
-    
     column_list = ['id','title', 'epigraph', 'main_image']
-
     column_searchable_list = ['title', 'epigraph']
-
     column_filters = ['title']
-
     # Model creation allowed
-    
     create_modal = True
-    
-    
     edit_modal = True
-    
 
     form_widget_args = {
         'title': {
@@ -226,13 +209,14 @@ def home():
 @app.route('/article/<article_id>')
 def article(article_id):
     article = Article.query.get(article_id)
-    images = Image.query.join(Paragraph).filter(Paragraph.article_id == article_id).all()
-    # print(images[0])
-    # print(images.content_image)
-    print('xxxxXxxxxxxxxxxxXXXXXXXXXXXXX')
+    images = Image.query.filter_by(article_id=article_id).all()
+    for image in images:
+        print(image.content_image)
+    print('xxxxxxxxxxxxxxxxxxxxx')
     return render_template('article.html', article=article, images=images)
-
-
+@app.route('/temp')
+def temp():
+    return render_template('temp.html')
 
 
 # Setting environment methods
