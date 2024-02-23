@@ -54,18 +54,14 @@
         </div>
         
         <div class="content-container">
-                {{ article.epigraph }}
-
+            {{ article.epigraph }}
+        
             {% for paragraph in article.paragraphs %}
-        <h2>Paragraph {{ paragraph.order }}</h2>
-        <p>{{ paragraph.text }}</p>
-        {% for image in images %}
-            {% if image.paragraph_id == paragraph.id %}
-            <img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + image.content_image) }}" alt=" Content-Image" >
-            {% endif %}
-        {% endfor %}
-    {% endfor %}
-            
+    <p>{{ paragraph.text }}</p>
+    {% if paragraph.image and paragraph.image.content_image %}
+        <img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + paragraph.image.content_image) }}" alt="Content-Image">
+    {% endif %}
+{% endfor %}
 
         </div>
     </div>

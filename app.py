@@ -124,20 +124,22 @@ class Imageform(FlaskForm):
         query_factory=lambda: Paragraph.query.all(),
         get_label='id',
         validators=[DataRequired()]
-    )   
-
-    image = ImageUploadField('Image',base_path='static/ArticleImage/ContentImage',validators=[DataRequired()])
+    )
+    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', validators=[DataRequired()])
 
     def populate_obj(self, obj):
         super().populate_obj(obj)
         selected_paragraph = self.paragraph_id.data
         if selected_paragraph:
             obj.paragraph_id = selected_paragraph.id
+            obj.content_image = self.image.data.filename
 
 class ImageView(ModelView):
     form = Imageform
-    column_list = ['paragraph_id','content_image']
-
+    column_list = ['id', 'paragraph_id', 'content_image']
+    form_extra_fields = {
+        'content_image': ImageUploadField('Image', thumbnail_size=(100, 100, True), validators=[DataRequired()])
+    }
     
 
 class ParagraphView(ModelView):
@@ -206,14 +208,12 @@ def home():
     articles = Article.query.all()
     return render_template('articles.html', articles= articles)
 
+
 @app.route('/article/<article_id>')
 def article(article_id):
-    article = Article.query.get(article_id)
-    images = Image.query.filter_by(article_id=article_id).all()
-    for image in images:
-        print(image.content_image)
-    print('xxxxxxxxxxxxxxxxxxxxx')
-    return render_template('article.html', article=article, images=images)
+    article = Article.query.get_or_404(article_id)
+    return render_template('article.html', article=article)
+
 @app.route('/temp')
 def temp():
     return render_template('temp.html')
