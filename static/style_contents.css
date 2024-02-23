@@ -1,0 +1,84 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding-top: 50px; /* Adjusted for the fixed navbar */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.article-container {
+    border: 1px solid #ddd;
+    margin: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+.article-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.date {
+    font-size: 12px;
+    color: #777;
+}
+
+.article-title {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 15px;
+    padding: 20;
+}
+#footer {
+    position: bottom;
+    bottom: 0;
+    width: 100%;
+}
+
+.article-container {
+    background-color: #ffffff; /* Sets the background color to transparent white */
+    width: 100%; /* Increases the width */
+    margin: 0 auto; /* Centers the containers */
+    border: none;
+    margin-bottom: 20px;
+}
+
+
+
+.article-content {
+    position: absolute; /* Position the content absolutely */
+    top: 50%; /* Position it 50% from the top */
+    left: 50%; /* Position it 50% from the left */
+    transform: translate(-50%, -50%); /* Center it horizontally and vertically */
+    text-align: center; /* Align text center */
+    background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
+    padding: 10px; /* Add padding for better readability */
+    border-radius: 5px; /* Optional: Add some border radius for rounded corners */
+}
+
+.article-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Set a transparent white background */
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1; /* Ensure the title is above the image */
+}
+
+body, html {
+    background-color: #ffffff; /* White background color */
+}
+
+.article-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    padding-top: 10%; /* This is 9/16 * 100% */
+    display: block;
+}

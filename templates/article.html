@@ -25,6 +25,13 @@
             height: auto;
             margin-bottom: 10px;
         }
+        .article-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            /* Set the aspect ratio to 16:9 */
+            padding-top: 10%; /* This is 9/16 * 100% */
+        }
 
         .content-container {
             font-size: 1.5em;
@@ -47,7 +54,7 @@
             <p> title is above </p>
         </div>
         <div class="image-container">
-            <img src="{{ url_for('static', filename= 'ArticleImage/ContentImage'  + 'article.content_image' ) }}" alt="{{ article.title }}" width="800" height="350">
+            <img src="{{ url_for('static', filename= 'ArticleImage/ContentImage'  + 'article.content_image' ) }}" alt="{{ article.title }}" class = "article-image">
         </div>
         <div class = 'date-container'>
             <p class="date">{{ article.date | date_format }}</p>
@@ -59,7 +66,7 @@
             {% for paragraph in article.paragraphs %}
     <p>{{ paragraph.text }}</p>
     {% if paragraph.image and paragraph.image.content_image %}
-        <img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + paragraph.image.content_image) }}" alt="Content-Image">
+        <img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + paragraph.image.content_image) }}" class="article-image">
     {% endif %}
 {% endfor %}
 

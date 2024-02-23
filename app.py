@@ -125,7 +125,7 @@ class Imageform(FlaskForm):
         get_label='id',
         validators=[DataRequired()]
     )
-    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage', validators=[DataRequired()])
+    image = ImageUploadField('Image', base_path='static/ArticleImage/ContentImage',validators=[DataRequired()])
 
     def populate_obj(self, obj):
         super().populate_obj(obj)
@@ -144,7 +144,21 @@ class ImageView(ModelView):
 
 class ParagraphView(ModelView):
     form = ParagraphForm
-    column_list = ['id','para_number','article_id','text']
+    column_list = ['id', 'para_number', 'article_title', 'text']  # Include 'article_title' in column list
+
+    def get_query(self):
+        return super(ParagraphView, self).get_query().join(Article)  # Join with Article model
+
+    def get_list(self, page, sort_column, sort_desc, search, filters, execute=True, page_size=None):
+        self.column_labels = {'article_title': 'Article Title'}  # Set custom label for article_title column
+        return super(ParagraphView, self).get_list(page, sort_column, sort_desc, search, filters, execute, page_size)
+
+    def scaffold_list_columns(self):
+        columns = super(ParagraphView, self).scaffold_list_columns()
+        columns['article_title'] = self._get_column_by_attr('article', 'title')  # Add article_title column
+        return columns
+    
+    
     form_widget_args = {
         'id': {
             'rows': 5
@@ -220,7 +234,7 @@ def temp():
 
 
 # Setting environment methods
-app.jinja_env.filters['date_format'] =  Utils.datetime_format
+app.jinja_env.filters['date_format'] =  Utils.time_ago
 
 
 if __name__ == '__main__':

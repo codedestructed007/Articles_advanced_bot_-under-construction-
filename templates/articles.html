@@ -1,49 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Articles</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            padding-top: 50px; /* Adjusted for the fixed navbar */
-        }
 
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-        }
+{% extends 'base_for_contents.html' %}
 
-        .article-container {
-            border: 1px solid #ddd;
-            margin: 10px;
-            text-align: center;
-            padding: 10px;
-        }
 
-        .article-image {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-        }
 
-        .date {
-            font-size: 12px;
-            color: #777;
-        }
 
-        .article-title {
-            font-size: 14px;
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-
+{% block navbar %}
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <a class="navbar-brand" href="#">Your Website</a>
@@ -53,10 +14,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Articles</a>
+                    <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Programming Questions</a>
@@ -64,26 +22,35 @@
             </ul>
         </div>
     </nav>
+{% endblock %}
 
+
+
+{% block content %}
     <!-- Content -->
     <div class="container mt-5">
-        <h1>Articles</h1>
+
         <div class="row">
             {% for article in articles %}
-                <div class="col-md-4">
-                    <a href="{{ url_for('article', article_id=article.id) }}">
-                        <div class="article-container">
-                            <img src="{{ url_for('static', filename='ArticleImage/' + article.main_image) }}" alt="{{ article.title }}" class="article-image">
-                            <h3 class="article-title">{{ article.title }}</h3>
+            <div class="col-md-6"> <!-- Use the full width of the row -->
+                <a href="{{ url_for('article', article_id=article.id) }}">
+                    <div class="article-container">
+                        <div class="article-header">
+                            <h3 class="article-title" style="color: black; font-size: 20px;"><b>{{ article.title }}</b></h3>
                             
-                            <p class="date">{{ article.date | date_format() }}</p>
                         </div>
-                    </a>
-                    
-                </div>
+                        <img src="{{ url_for('static', filename='ArticleImage/' + article.main_image) }}" alt="{{ article.title }}" class="article-image">
+                        <p class="date">{{ article.date  }}</p>
+                        
+                    </div>
+                </a>
+            </div>
             {% endfor %}
         </div>
     </div>
+    
+{% endblock %}
+
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
