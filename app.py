@@ -138,13 +138,13 @@ class ImageView(ModelView):
     form = Imageform
     column_list = ['id', 'paragraph_id', 'content_image']
     form_extra_fields = {
-        'content_image': ImageUploadField('Image', thumbnail_size=(100, 100, True), validators=[DataRequired()])
+        'content_image': ImageUploadField('Image', validators=[DataRequired()])
     }
     
 
 class ParagraphView(ModelView):
     form = ParagraphForm
-    column_list = ['id', 'para_number', 'article_title', 'text']  # Include 'article_title' in column list
+    column_list = ['id', 'para_number', 'article_id', 'text']  # Include 'article_title' in column list
 
     def get_query(self):
         return super(ParagraphView, self).get_query().join(Article)  # Join with Article model
@@ -159,17 +159,6 @@ class ParagraphView(ModelView):
         return columns
     
     
-    form_widget_args = {
-        'id': {
-            'rows': 5
-        },
-        'article_id': {
-            'rows': 10
-        },
-        'mainimage' : {
-            'rows' : 20
-        }
-    }
 
     
 class ArticleView(ModelView):
@@ -234,7 +223,7 @@ def temp():
 
 
 # Setting environment methods
-app.jinja_env.filters['date_format'] =  Utils.time_ago
+app.jinja_env.filters['day_ago'] =  Utils.time_ago
 
 
 if __name__ == '__main__':

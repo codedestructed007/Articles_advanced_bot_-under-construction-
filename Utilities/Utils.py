@@ -22,3 +22,7 @@ def time_ago(date):
         return f"{minutes} {'minutes' if minutes > 1 else 'minute'} ago"
     else:
         return "Just now"
+    
+    
+def format_date(date):
+    return date.strftime('%Y-%m-%d') if isinstance(date, datetime) else date

@@ -2,8 +2,6 @@
 {% extends 'base_for_contents.html' %}
 
 
-
-
 {% block navbar %}
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -25,29 +23,34 @@
 {% endblock %}
 
 
-
+<body>
 {% block content %}
     <!-- Content -->
     <div class="container mt-5">
-
         <div class="row">
             {% for article in articles %}
-            <div class="col-md-6"> <!-- Use the full width of the row -->
+            <div class="col-md-4 mb-4">
                 <a href="{{ url_for('article', article_id=article.id) }}">
                     <div class="article-container">
                         <div class="article-header">
-                            <h3 class="article-title" style="color: black; font-size: 20px;"><b>{{ article.title }}</b></h3>
-                            
+                            <h3 class="article-title" style="color: black;"><b>{{ article.title }}</b></h3>
                         </div>
-                        <img src="{{ url_for('static', filename='ArticleImage/' + article.main_image) }}" alt="{{ article.title }}" class="article-image">
-                        <p class="date">{{ article.date  }}</p>
-                        
+                        <div class="image-details">
+                            <img src="{{ url_for('static', filename='ArticleImage/' + article.main_image) }}" alt="{{ article.title }}" class="article-image">
+                            <div class="details">
+                                <div class="epigraph">
+                                    <p>{{ article.epigraph }}</p>
+                                </div>
+                                <p class="date">{{ article.date | day_ago }}</p>
+                            </div>
+                        </div>
                     </div>
                 </a>
             </div>
             {% endfor %}
         </div>
     </div>
+    
     
 {% endblock %}
 

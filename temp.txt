@@ -1,105 +1,81 @@
 <!DOCTYPE html>
- 
-
 <html lang="en">
 <head>
-  
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>{{ article.title }}</title>
+   
+    <!-- Add any additional styles or scripts here -->
+    <style>
+        .article-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .title-container {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 40px;
+            font-family: 'Helvetica';
+        }
+
+        .image-container {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .article-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            /* Set the aspect ratio to 16:9 */
+            padding-top: 10%; /* This is 9/16 * 100% */
+        }
+
+        .content-container {
+            font-size: 1.5em;
+            font-family: 'Times New Roman'
+            margin-top: 20px;
+        }
+        
+        .date-container {
+            font-size: 0.8em;
+            color: #888; /* Light gray color */
+            float: right;
+            padding: -20px;
+        }
+    </style>
 </head>
-
-  
 <body>
-
-    <!-- Loading Spinner -->
-
-    <div class="loader-container">
-        <div class="loader"></div>
-      </div>
-  
-
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Your Website</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Articles</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Programming Questions</a>
-                </li>
-            </ul>
+    <div class="article-container">
+        <div class="title-container">          
+            {{ article.title }}
+            <p> title is above </p>
         </div>
-    </nav>
+        <div class="image-container">
+            <img src="{{ url_for('static', filename= 'ArticleImage/ContentImage'  + 'article.content_image' ) }}" alt="{{ article.title }}" class = "article-image">
+        </div>
+        <div class = 'date-container'>
+            <p class="date">{{ article.date  }}</p>
+        </div>
+        
+        <div class="content-container">
+            {{ article.epigraph }}
+        
+            {% for paragraph in article.paragraphs %}
+    <p>{{ paragraph.text }}</p>
+    {% if paragraph.image and paragraph.image.content_image %}
+        <img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + paragraph.image.content_image) }}" class="article-image">
+    {% endif %}
+{% endfor %}
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8">
-                <section>
-                    <h2>Articles</h2>
-                    <a href='/articles'><img src='static\fixed\article_thumbnail-removebg-preview.png' alt='Thumbnail for Article'></a>
-                </section>
-
-                <section>
-                    <h2>Programming Questions</h2>
-                    <a href='/programming'><img src='static\fixed\programming_thumbnail-removebg-preview.png' alt='Thumbnail for Programming Questions'></a>
-                </section>
-            </div>
-
-            <div class="col-md-4">
-                <!-- Sidebar or additional content goes here -->
-            </div>
         </div>
     </div>
-    <!-- Footer -->
-    <footer class="mt-5 bg-dark text-light text-center py-3">
-        &copy; 2024 Your Website. All rights reserved.
-    </footer>
-
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-    <!-- Loading Script-->
-    <script>
-        
-
-        // JavaScript to show and hide the loader during page transitions
-    document.addEventListener("DOMContentLoaded", function () {
-        var loader = document.querySelector(".loader");
-        
-
-  
-        // Show loader when the page starts loading
-        loader.style.display = "block";
-       
-  
-        // Hide loader after 2 seconds (adjust the time as needed)
-        setTimeout(function () {
-            loader.style.display = "none";
-           
-          }, 2000);
-      });
-
-
-
-
-    </script>
-
-
 </body>
 </html>
+
+
+
+
+<img src="{{ url_for('static', filename='ArticleImage/ContentImage/' + paragraph.image.content_image) }}" style="display: block; margin-left: auto; margin-right: auto; width: 50%; height: auto; margin-bottom: 10px;">

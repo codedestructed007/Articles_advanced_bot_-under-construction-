@@ -62,3 +62,28 @@ body {
     bottom: 0;
     width: 100%;
 }
+
+.image-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-size {
+    width: 50%;
+    height: auto;
+    margin-bottom: 10px;
+}
+.image-container {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px; /* Adjust as needed */
+}
+
+.paragraph-text {
+    display: inline-block;
+    vertical-align: top;
+    width: calc(50% - 10px); /* Adjust as needed */
+    /* Subtracting 10px for margin-right of image-container */
+    margin-bottom: 10px; /* Adjust as needed */
+}
